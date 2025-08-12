@@ -1,14 +1,14 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-const min_version = "0.15.0";
+// const min_ver = "0.15.0";
 
-comptime {
-    const order = std.SemanticVersion.order;
-    const parse = std.SemanticVersion.parse;
-    if (order(builtin.zig_version, parse(min_ver) catch unreachable) == .lt)
-        @compileError("Raylib requires zig version " ++ min_ver);
-}
+// comptime {
+//     const order = std.SemanticVersion.order;
+//     const parse = std.SemanticVersion.parse;
+//     if (order(builtin.zig_version, parse(min_ver) catch unreachable) == .lt)
+//         @compileError("SDL_image requires zig version " ++ min_ver);
+// }
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -48,12 +48,9 @@ pub fn build(b: *std.Build) void {
     sdl_image_mod.addCMacro("SAVE_PNG", "1");
     sdl_image_mod.addCMacro("SAVE_TGA", "1");
     sdl_image_mod.addCMacro("SDL_BUILD_MAJOR_VERSION", "3");
-    sdl_image_mod.addCMacro("SDL_BUILD_MICRO_VERSION", "0");
-    sdl_image_mod.addCMacro("SDL_BUILD_MINOR_VERSION", "3");
+    sdl_image_mod.addCMacro("SDL_BUILD_MICRO_VERSION", "2");
+    sdl_image_mod.addCMacro("SDL_BUILD_MINOR_VERSION", "4");
     sdl_image_mod.addCMacro("USE_STBIMAGE", "1");
-
-    sdl_image_mod.addIncludePath(b.path("include/SDL3_image/"));
-    sdl_image_mod.addIncludePath(sdl_dep.namedLazyPath("SDL3/"));
 
     const sdl_image_lib = b.addLibrary(.{
         .name = "sdl_image",
@@ -89,6 +86,9 @@ pub fn build(b: *std.Build) void {
         },
         .flags = &.{},
     });
+
+    sdl_image_lib.addIncludePath(b.path("include/SDL3_image/"));
+    sdl_image_lib.addSystemIncludePath(b.path("SDL3/"));
 
     sdl_image_lib.linkLibrary(sdl_dep.artifact("SDL3"));
     sdl_image_lib.installHeader(b.path("include/SDL3_image/SDL_image.h"), "SDL3_image/SDL_image.h");

@@ -19,11 +19,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-// We will have the saving BMP feature by default
-#if !defined(SAVE_BMP)
-#define SAVE_BMP 1
-#endif
-
 #if (!defined(__APPLE__) || defined(SDL_IMAGE_USE_COMMON_BACKEND)) || !defined(BMP_USES_IMAGEIO)
 
 /* This is a BMP image file loading framework
@@ -357,33 +352,33 @@ static SDL_Surface *LoadICOCUR_IO(SDL_IOStream * src, int type, bool closeio)
         case 4:
         case 8:
             {
-                Uint8 pixelvalue = 0;
+                Uint8 pixel = 0;
                 int shift = (8 - ExpandBMP);
                 for (i = 0; i < surface->w; ++i) {
                     if (i % (8 / ExpandBMP) == 0) {
-                        if (SDL_ReadIO(src, &pixelvalue, 1) != 1) {
+                        if (SDL_ReadIO(src, &pixel, 1) != 1) {
                             goto done;
                         }
                     }
-                    *((Uint32 *) bits + i) = (palette[pixelvalue >> shift]);
-                    pixelvalue <<= ExpandBMP;
+                    *((Uint32 *) bits + i) = (palette[pixel >> shift]);
+                    pixel <<= ExpandBMP;
                 }
             }
             break;
         case 24:
             {
-                Uint32 pixelvalue;
+                Uint32 pixel;
                 Uint8 channel;
                 for (i = 0; i < surface->w; ++i) {
-                    pixelvalue = 0xFF000000;
+                    pixel = 0xFF000000;
                     for (j = 0; j < 3; ++j) {
                         /* Load each color channel into pixel */
                         if (SDL_ReadIO(src, &channel, 1) != 1) {
                             goto done;
                         }
-                        pixelvalue |= (channel << (j * 8));
+                        pixel |= (channel << (j * 8));
                     }
-                    *((Uint32 *) bits + i) = pixelvalue;
+                    *((Uint32 *) bits + i) = pixel;
                 }
             }
             break;
@@ -410,18 +405,18 @@ static SDL_Surface *LoadICOCUR_IO(SDL_IOStream * src, int type, bool closeio)
     bmpPitch = (biWidth + 7) >> 3;
     pad = (((bmpPitch) % 4) ? (4 - ((bmpPitch) % 4)) : 0);
     while (bits > (Uint8 *) surface->pixels) {
-        Uint8 pixelvalue = 0;
+        Uint8 pixel = 0;
         int shift = (8 - ExpandBMP);
 
         bits -= surface->pitch;
         for (i = 0; i < surface->w; ++i) {
             if (i % (8 / ExpandBMP) == 0) {
-                if (SDL_ReadIO(src, &pixelvalue, 1) != 1) {
+                if (SDL_ReadIO(src, &pixel, 1) != 1) {
                     goto done;
                 }
             }
-            *((Uint32 *) bits + i) &= ((pixelvalue >> shift) ? 0 : 0xFFFFFFFF);
-            pixelvalue <<= ExpandBMP;
+            *((Uint32 *) bits + i) &= ((pixel >> shift) ? 0 : 0xFFFFFFFF);
+            pixel <<= ExpandBMP;
         }
         /* Skip padding bytes, ugh */
         if (pad) {
@@ -478,80 +473,44 @@ SDL_Surface *IMG_LoadCUR_IO(SDL_IOStream *src)
 
 #else
 
+#if defined(_MSC_VER) && _MSC_VER >= 1300
+#pragma warning(disable : 4100) /* warning C4100: 'op' : unreferenced formal parameter */
+#endif
+
 /* See if an image is contained in a data source */
 bool IMG_isBMP(SDL_IOStream *src)
 {
-    (void)src;
     return false;
 }
 
 bool IMG_isICO(SDL_IOStream *src)
 {
-    (void)src;
     return false;
 }
 
 bool IMG_isCUR(SDL_IOStream *src)
 {
-    (void)src;
     return false;
 }
 
 /* Load a BMP type image from an SDL datasource */
 SDL_Surface *IMG_LoadBMP_IO(SDL_IOStream *src)
 {
-    (void)src;
     return NULL;
 }
 
 /* Load a BMP type image from an SDL datasource */
 SDL_Surface *IMG_LoadCUR_IO(SDL_IOStream *src)
 {
-    (void)src;
     return NULL;
 }
 
 /* Load a BMP type image from an SDL datasource */
 SDL_Surface *IMG_LoadICO_IO(SDL_IOStream *src)
 {
-    (void)src;
     return NULL;
 }
 
 #endif /* LOAD_BMP */
 
 #endif /* !defined(__APPLE__) || defined(SDL_IMAGE_USE_COMMON_BACKEND) */
-
-
-#if SAVE_BMP
-
-bool IMG_SaveBMP_IO(SDL_Surface *surface, SDL_IOStream *dst, bool closeio)
-{
-    return SDL_SaveBMP_IO(surface, dst, closeio);
-}
-
-bool IMG_SaveBMP(SDL_Surface *surface, const char *file)
-{
-    SDL_IOStream *dst = SDL_IOFromFile(file, "wb");
-    return IMG_SaveBMP_IO(surface, dst, true);
-}
-
-#else // !SAVE_BMP
-
-bool IMG_SaveBMP_IO(SDL_Surface *surface, SDL_IOStream *dst, bool closeio)
-{
-    (void)surface;
-    (void)dst;
-    (void)closeio;
-    return SDL_SetError("SDL_image built without BMP save support");
-}
-
-bool IMG_SaveBMP(SDL_Surface *surface, const char *file)
-{
-    (void)surface;
-    (void)file;
-    return SDL_SetError("SDL_image built without BMP save support");
-}
-
-#endif // SAVE_BMP
-
