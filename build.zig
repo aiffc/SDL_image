@@ -42,14 +42,11 @@ pub fn build(b: *std.Build) void {
     sdl_image_mod.addCMacro("LOAD_XCF", "1");
     sdl_image_mod.addCMacro("LOAD_XPM", "1");
     sdl_image_mod.addCMacro("LOAD_XV", "1");
-    sdl_image_mod.addCMacro("SAVE_BMP", "1");
-    sdl_image_mod.addCMacro("SAVE_GIF", "1");
-    sdl_image_mod.addCMacro("SAVE_JPG", "1");
-    sdl_image_mod.addCMacro("SAVE_PNG", "1");
-    sdl_image_mod.addCMacro("SAVE_TGA", "1");
     sdl_image_mod.addCMacro("SDL_BUILD_MAJOR_VERSION", "3");
-    sdl_image_mod.addCMacro("SDL_BUILD_MICRO_VERSION", "2");
-    sdl_image_mod.addCMacro("SDL_BUILD_MINOR_VERSION", "4");
+    sdl_image_mod.addCMacro("SDL_BUILD_MICRO_VERSION", "4");
+    sdl_image_mod.addCMacro("SDL_BUILD_MINOR_VERSION", "2");
+    sdl_image_mod.addCMacro("SDL_IMAGE_SAVE_JPG", "1");
+    sdl_image_mod.addCMacro("SDL_IMAGE_SAVE_PNG", "1");
     sdl_image_mod.addCMacro("USE_STBIMAGE", "1");
 
     const sdl_image_lib = b.addLibrary(.{
@@ -59,35 +56,40 @@ pub fn build(b: *std.Build) void {
 
     sdl_image_lib.addCSourceFiles(.{
         .files = &.{
-            "src/IMG_anim_decoder.c",
-            "src/IMG_anim_encoder.c",
-            "src/IMG_avif.c",
-            "src/IMG_bmp.c",
-            "src/IMG_gif.c",
-            "src/IMG_jpg.c",
-            "src/IMG_jxl.c",
-            "src/IMG_lbm.c",
-            "src/IMG_libpng.c",
-            "src/IMG_pcx.c",
-            "src/IMG_png.c",
-            "src/IMG_pnm.c",
-            "src/IMG_qoi.c",
-            "src/IMG_stb.c",
-            "src/IMG_svg.c",
-            "src/IMG_tga.c",
-            "src/IMG_tif.c",
-            "src/IMG_webp.c",
-            "src/IMG_WIC.c",
-            "src/IMG_xcf.c",
-            "src/IMG_xpm.c",
-            "src/IMG_xv.c",
-            "src/IMG_xxx.c",
-            "src/IMG.c",
+            "IMG.c",
+            "IMG_WIC.c",
+            "IMG_avif.c",
+            "IMG_bmp.c",
+            "IMG_gif.c",
+            "IMG_jpg.c",
+            "IMG_jxl.c",
+            "IMG_lbm.c",
+            "IMG_pcx.c",
+            "IMG_png.c",
+            "IMG_pnm.c",
+            "IMG_qoi.c",
+            "IMG_stb.c",
+            "IMG_svg.c",
+            "IMG_tga.c",
+            "IMG_tif.c",
+            "IMG_webp.c",
+            "IMG_xcf.c",
+            "IMG_xpm.c",
+            "IMG_xv.c",
         },
-        .flags = &.{},
+        .flags = &.{
+            "-Wall",
+            "-Wundef",
+            "-Wfloat-conversion",
+            "-fno-strict-aliasing",
+            "-Wshadow",
+            "-Wno-unused-local-typedefs",
+            "-Wimplicit-fallthrough",
+        },
     });
 
     sdl_image_lib.addIncludePath(b.path("include/"));
+    //sdl_image_lib.addIncludePath(b.path("src/"));
     sdl_image_lib.addSystemIncludePath(b.path("SDL3/"));
 
     sdl_image_lib.linkLibrary(sdl_dep.artifact("SDL3"));
