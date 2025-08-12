@@ -87,7 +87,7 @@ pub fn build(b: *std.Build) void {
         .flags = &.{},
     });
 
-    sdl_image_lib.addIncludePath(b.path("include/SDL3_image/"));
+    sdl_image_lib.addIncludePath(b.path("include/"));
     sdl_image_lib.addSystemIncludePath(b.path("SDL3/"));
 
     sdl_image_lib.linkLibrary(sdl_dep.artifact("SDL3"));
