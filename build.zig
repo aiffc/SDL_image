@@ -76,6 +76,7 @@ pub fn build(b: *std.Build) void {
             "src/IMG_xcf.c",
             "src/IMG_xpm.c",
             "src/IMG_xv.c",
+            "src/IMG_ImageIO.m",
         },
         .flags = &.{
             "-Wall",
